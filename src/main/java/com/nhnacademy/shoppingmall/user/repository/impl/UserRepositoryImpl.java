@@ -19,16 +19,16 @@ public class UserRepositoryImpl implements UserRepository {
           해당 코드는 SQL Injection이 발생합니다. SQL Injection이 발생하지 않도록 수정하세요.
          */
         Connection connection = DbConnectionThreadLocal.getConnection();
-        String sql =String.format("select user_id, user_name, user_password, user_birth, user_auth, user_point, created_at, latest_login_at from users where user_id='%s' and user_password ='%s'",
-                userId,
-                userPassword
-        );
+        String sql = "select user_id, user_name, user_password, user_birth, user_auth, user_point, created_at, latest_login_at from users where user_id=? and user_password =?";
 
         log.debug("sql:{}",sql);
 
-        try( Statement psmt = connection.createStatement();
-             ResultSet rs =  psmt.executeQuery(sql);
-        ) {
+        try( PreparedStatement psmt = connection.prepareStatement(sql);)
+        {
+            psmt.setString(1, userId);
+            psmt.setString(2, userPassword);
+
+            ResultSet rs =  psmt.executeQuery();
             if(rs.next()){
                 User user = new User(
                         rs.getString("user_id"),
