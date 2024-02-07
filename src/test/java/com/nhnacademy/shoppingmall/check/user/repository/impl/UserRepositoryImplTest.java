@@ -121,4 +121,12 @@ class UserRepositoryImplTest {
         int result = userRepository.updateLatestLoginAtByUserId(testUser.getUserId(),LocalDateTime.now());
         Assertions.assertEquals(1,result);
     }
+
+    @Test
+    @Order(9)
+    @DisplayName("countByUserId 검증 | userId와 일치하는 회원의 count를 반환")
+    void countByUserId() {
+        int result = userRepository.countByUserId(testUser.getUserId());
+        Assertions.assertEquals(1, result);
+    }
 }
