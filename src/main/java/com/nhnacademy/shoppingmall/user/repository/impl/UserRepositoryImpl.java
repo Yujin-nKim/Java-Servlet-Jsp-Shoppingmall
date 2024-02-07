@@ -21,9 +21,7 @@ public class UserRepositoryImpl implements UserRepository {
         Connection connection = DbConnectionThreadLocal.getConnection();
         String sql = "select user_id, user_name, user_password, user_birth, user_auth, user_point, created_at, latest_login_at from users where user_id=? and user_password =?";
 
-        log.debug("sql:{}",sql);
-
-        try( PreparedStatement psmt = connection.prepareStatement(sql);)
+        try( PreparedStatement psmt = connection.prepareStatement(sql))
         {
             psmt.setString(1, userId);
             psmt.setString(2, userPassword);
@@ -45,31 +43,82 @@ public class UserRepositoryImpl implements UserRepository {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
         return Optional.empty();
     }
 
     @Override
     public Optional<User> findById(String userId) {
         //todo#3-2 회원조회
+        Connection connection = DbConnectionThreadLocal.getConnection();
+        String sql = "select user_id, user_name, user_password, user_birth, user_auth, user_point, created_at, latest_login_at from users where user_id=?";
+
+        try (PreparedStatement psmt = connection.prepareStatement(sql)) {
+            psmt.setString(1, userId);
+
+            ResultSet rs = psmt.executeQuery();
+            if(rs.next()) {
+                User user = new User(
+                        rs.getString("user_id"),
+                        rs.getString("user_name"),
+                        rs.getString("user_password"),
+                        rs.getString("user_birth"),
+                        User.Auth.valueOf(rs.getString("user_auth")),
+                        rs.getInt("user_point"),
+                        Objects.nonNull(rs.getTimestamp("created_at")) ? rs.getTimestamp("created_at").toLocalDateTime() : null,
+                        Objects.nonNull(rs.getTimestamp("latest_login_at")) ? rs.getTimestamp("latest_login_at").toLocalDateTime() : null
+                );
+                return Optional.of(user);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         return Optional.empty();
     }
 
     @Override
     public int save(User user) {
         //todo#3-3 회원등록, executeUpdate()을 반환합니다.
-        return 0;
+        Connection connection = DbConnectionThreadLocal.getConnection();
+        String sql = "insert into users(user_id, user_name, user_password, user_birth, user_auth, user_point, created_at, latest_login_at) values (?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement psmt = connection.prepareStatement(sql)) {
+            int idx = 0;
+            psmt.setString(++idx, user.getUserId());
+            psmt.setString(++idx, user.getUserName());
+            psmt.setString(++idx, user.getUserPassword());
+            psmt.setString(++idx, user.getUserBirth());
+            psmt.setString(++idx, user.getUserAuth().toString());
+            psmt.setInt(++idx, user.getUserPoint());
+            psmt.setString(++idx, Objects.nonNull(user.getCreatedAt()) ? user.getCreatedAt().toString() : null);
+            psmt.setString(++idx, Objects.nonNull(user.getLatestLoginAt()) ? user.getLatestLoginAt().toString() : null);
+
+            return psmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public int deleteByUserId(String userId) {
         //todo#3-4 회원삭제, executeUpdate()을 반환합니다.
-        return 0;
+        Connection connection = DbConnectionThreadLocal.getConnection();
+
+        String sql = "delete from users where user_id=?";
+
+        try(PreparedStatement psmt = connection.prepareStatement(sql)) {
+            psmt.setString(1, userId);
+            return psmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public int update(User user) {
         //todo#3-5 회원수정, executeUpdate()을 반환합니다.
+        Connection connection = DbConnectionThreadLocal.getConnection();
+
+
         return 0;
     }
 
