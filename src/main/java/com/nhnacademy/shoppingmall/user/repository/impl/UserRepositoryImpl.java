@@ -157,13 +157,15 @@ public class UserRepositoryImpl implements UserRepository {
         //todo#3-7 userId와 일치하는 회원의 count를 반환합니다.
         Connection connection = DbConnectionThreadLocal.getConnection();
 
-        String sql = "select count(*) from users where uesr_id=?";
+        String sql = "select count(*) from users where user_id=?";
 
         try(PreparedStatement psmt = connection.prepareStatement(sql)) {
             psmt.setString(1, userId);
-
-            int result = psmt.executeUpdate();
-            System.out.println(result);
+            ResultSet rs = psmt.executeQuery();
+            int result = 0;
+            if(rs.next()) {
+                result = rs.getInt(1);
+            }
             return result;
         } catch (SQLException e) {
             throw new RuntimeException(e);
