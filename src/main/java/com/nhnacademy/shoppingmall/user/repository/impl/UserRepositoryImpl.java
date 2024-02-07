@@ -118,20 +118,56 @@ public class UserRepositoryImpl implements UserRepository {
         //todo#3-5 회원수정, executeUpdate()을 반환합니다.
         Connection connection = DbConnectionThreadLocal.getConnection();
 
+        String sql = "update users set user_name=?, user_password=?, user_birth=?, user_auth=?, user_point=? where user_id=?";
 
-        return 0;
+        try(PreparedStatement psmt = connection.prepareStatement(sql)) {
+            int idx = 0;
+            psmt.setString(++idx, user.getUserName());
+            psmt.setString(++idx, user.getUserPassword());
+            psmt.setString(++idx, user.getUserBirth());
+            psmt.setString(++idx, user.getUserAuth().toString());
+            psmt.setInt(++idx, user.getUserPoint());
+            psmt.setString(++idx, user.getUserId());
+
+            return psmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public int updateLatestLoginAtByUserId(String userId, LocalDateTime latestLoginAt) {
         //todo#3-6, 마지막 로그인 시간 업데이트, executeUpdate()을 반환합니다.
-        return 0;
+        Connection connection = DbConnectionThreadLocal.getConnection();
+
+        String sql = "update users set latest_login_at=? where user_id=?";
+
+        try(PreparedStatement psmt = connection.prepareStatement(sql)) {
+            psmt.setString(1, latestLoginAt.toString());
+            psmt.setString(2, userId);
+
+            return psmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public int countByUserId(String userId) {
         //todo#3-7 userId와 일치하는 회원의 count를 반환합니다.
-        return 0;
+        Connection connection = DbConnectionThreadLocal.getConnection();
+
+        String sql = "select count(*) from users where uesr_id=?";
+
+        try(PreparedStatement psmt = connection.prepareStatement(sql)) {
+            psmt.setString(1, userId);
+
+            int result = psmt.executeUpdate();
+            System.out.println(result);
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
