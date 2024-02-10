@@ -109,5 +109,4 @@ class UserServiceImplTest {
         Assertions.assertThrows(UserNotFoundException.class,()->userService.doLogin(testUser.getUserId(), testUser.getUserPassword()));
         Mockito.verify(userRepository,Mockito.times(1)).findByUserIdAndUserPassword(anyString(),anyString());
     }
-
 }
