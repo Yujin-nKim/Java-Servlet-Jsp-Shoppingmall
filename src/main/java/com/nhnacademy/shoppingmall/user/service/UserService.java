@@ -14,4 +14,5 @@ public interface UserService {
 
     User doLogin(String userId, String userPassword);
 
+    boolean isExistUserId(String userId);
 }
